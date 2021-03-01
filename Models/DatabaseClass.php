@@ -49,6 +49,40 @@ class DatabaseClass
         }
     }
 
+    public  function getPageNumber ($id, $sort) {
+        switch ($sort) {
+            case 1:
+                $replace = 'user DESC';
+                break;
+            case 2:
+                $replace = 'mail';
+                break;
+            case 3:
+                $replace = 'mail DESC';
+                break;
+            case 4:
+                $replace = 'status';
+                break;
+            default:
+                $replace = 'user';
+                break;
+        }
+        $query = str_replace('&', $replace,
+            "SELECT n FROM (SELECT @i:=@i+1 AS n, id FROM tasks, (SELECT @i:=0)  X ORDER BY & ) AS k WHERE id =?");
+        try {
+            $stmt = $this->connection->prepare($query);
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $stmt->bind_result($r1);
+            $stmt->fetch();
+            $stmt->close();
+            return $r1;
+        } catch (Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    
     public function selectTask($id, $sort)
     {
         switch ($sort) {
