@@ -22,23 +22,26 @@ class Core
         exit();
     }
 
-    private function f_status()
+      private function f_status()
     {
         // Остальные параметры не поверяю, т.к. работа в ЛК
         if ($this->db->checkToken($this->arguments['token'])) {
             $par = '';
             if ($this->arguments['status'] === 'changeStatus') $par = $this->arguments['task'];
             $this->db->replaceTasks($this->arguments['number'], $this->arguments['status'], $par);
-            $this->f_get(($this->arguments['page'] !== 4) ? $this->arguments['page'] : 1, $this->arguments['sort']);
+            $page = ceil($this->db->getPageNumber ($this->arguments['number'], $this->arguments['sort']) / 3) ;
+            $this->f_get($page, $this->arguments['sort']);
         }
         $this->f_err();
     }
 
     private function f_add($user, $mail, $task)
     {
-        $t = $this->db->addTask($user, $mail, $task, 'mainStatus');
-        $this->f_get(1, $this->arguments['sort']);
+        $id = $this->db->addTask($user, $mail, $task, 'mainStatus');
+        $page = ceil($this->db->getPageNumber ($id, $this->arguments['sort']) / 3) ;
+        $this->f_get($page, $this->arguments['sort']);
     }
+
 
     private function f_login()
     {
